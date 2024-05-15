@@ -14,7 +14,7 @@ Screenshots de demonstração da ferramenta.
 Installation
 ----
 
-De preferência, você pode baixar o sqlmap clonando o [Git](https://github.com/FelipeMendoncaaa/cp2gabu) repositório:
+De preferência, você pode baixar o sqlmap clonando o repositório [Git](https://github.com/FelipeMendoncaaa/cp2gabu):
 
     git clone https://github.com/FelipeMendoncaaa/cp2gabu.git
 
