@@ -7,7 +7,7 @@ Gabuu apresenta duas ferramentas. A primeira permite que o usuário altere as in
 Screenshots
 ----
 
-![Screenshot](https://github.com/FelipeMendoncaaa/cp2gabu/img/imagem1.png)
+![Screenshot](https://github.com/FelipeMendoncaaa/cp2gabu/blob/main/img/imagem1.jpg)
 
 Screenshots de demonstração da ferramenta.
 
