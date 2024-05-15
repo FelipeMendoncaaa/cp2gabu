@@ -21,7 +21,7 @@ def request(method, url, headers, params):
         
         # Verifica se deu certo
         if resposta.status_code == 200:
-            print(f"Solicitação bem-sucedida!\nCabeçalhos: {resposta.headers}")
+            print(f"\nSolicitação bem-sucedida!\nCabeçalhos: {resposta.headers}")
         else:
             print(f"A solicitação ({method}) para {url} falhou, o erro foi um: {resposta.status_code}\nResposta: {resposta.text}")
     except requests.RequestException as e:
@@ -68,30 +68,59 @@ def request_attack():
     with concurrent.futures.ThreadPoolExecutor(max_workers=min(32, num_solicitations)) as executor:
         executor.map(lambda u: request(method, u, headers=headers, params=params), urls)
 
-def sql(username, password):
+# Função para criar a tabela users e inserir dados de exemplo
+def setup_database():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+
+    # Criação da tabela users
+    cursor.execute('''CREATE TABLE IF NOT EXISTS users (
+                        username TEXT,
+                        password TEXT
+                    )''')
+
+    # Inserção de dados de exemplo
+    cursor.execute("INSERT INTO users (username, password) VALUES ('admin', 'password')")
+    cursor.execute("INSERT INTO users (username, password) VALUES ('user', '123456')")
+
+    conn.commit()
+    conn.close()
+
+def sql(url, username, password):
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
 
     # Consulta se há a vulnerabilidade
-    query = "SELECT * FROM users WHERE username='{}' AND password='{}'".format(username, password)
-
-    # Execução da consulta
-    cursor.execute(query)
+    query = "SELECT * FROM users WHERE username=? AND password=?"
+    cursor.execute(query, (username, password))
 
     # Verificação do resultado da consulta
     user = cursor.fetchone()
     if user:
-        print("Login bem-sucedido!")
+        print("Login bem-sucedido em {}!".format(url))
     else:
-        print("Usuário ou senha incorretos.")
+        print("Usuário ou senha incorretos em {}.".format(url))
 
-    conn.close()
+        # Exemplo de injeção de SQL
+        username_injection = "admin' OR '1'='1"
+        password_injection = "password"
 
-    # Exemplo de injeção de SQL
-    username = "admin' OR '1'='1"
-    password = "password"
+        # Tentativa de login com os dados injetados
+        query_injection = "SELECT * FROM users WHERE username=? AND password=?"
+        cursor.execute(query_injection, (username_injection, password_injection))
+        user_injection = cursor.fetchone()
+        if user_injection:
+            print("Login bem-sucedido após injeção de SQL em {}!".format(url))
+        else:
+            print("Injeção de SQL não teve sucesso em {}.".format(url))
 
-    # Tentativa de login com os dados injetados
+    conn.close()  # Fechando a conexão após todas as consultas
+
+def attack_site():
+    url = input("Digite a URL do site: ")
+    username_input = input("Digite o nome de usuário: ")
+    password_input = input("Digite a senha: ")
+    sql(url, username_input, password_input)
 
 def menu():
     try:
@@ -103,9 +132,13 @@ def menu():
     if decisao == 1: 
         request_attack()
     elif decisao == 2: 
-        sql()
+        attack_site()
     else: 
         print('Número Inválido.') 
         menu()
 
+setup_database()
 menu()
+
+
+
